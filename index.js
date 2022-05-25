@@ -41,7 +41,7 @@ async function run() {
 }
 run().catch(console.dir);
 
-//FOOTER
+//FOOTER////////////
 
 app.get("/", (req, res) => {
     res.send("Server is Running");

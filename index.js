@@ -17,6 +17,21 @@ const client = new MongoClient(uri, {
     serverApi: ServerApiVersion.v1,
 });
 
+function verifyJWT(req, res, next) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res.status(401).send({ message: "UnAuthorized access" });
+    }
+    const token = authHeader.split(" ")[1];
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
+        if (err) {
+            return res.status(403).send({ message: "Forbidden access" });
+        }
+        req.decoded = decoded;
+        next();
+    });
+}
+
 //ALL API
 
 async function run() {
@@ -33,6 +48,25 @@ async function run() {
             const cursor = productCollection.find(query);
             const products = await cursor.toArray();
             res.send(products);
+        });
+
+        //MAKE ADMIN
+
+        app.get("/user", async (req, res) => {
+            const users = await userCollection.find().toArray();
+            res.send(users);
+        });
+
+        /////////
+
+        app.put("/user/admin/:email", async (req, res) => {
+            const email = req.params.email;
+            const filter = { email: email };
+            const updateDoc = {
+                $set: { role: "admin" },
+            };
+            const result = await userCollection.updateOne(filter, updateDoc);
+            res.send(result);
         });
 
         //USER
@@ -54,7 +88,7 @@ async function run() {
             const token = jwt.sign(
                 { email: email },
                 process.env.ACCESS_TOKEN_SECRET,
-                { expiresIn: "1h" }
+                { expiresIn: "7d" }
             );
             res.send({ result, token });
         });

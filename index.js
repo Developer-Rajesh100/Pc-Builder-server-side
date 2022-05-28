@@ -57,7 +57,7 @@ async function run() {
             res.send(users);
         });
 
-        /////////
+        /////////ADMIN
 
         app.put("/user/admin/:email", async (req, res) => {
             const email = req.params.email;

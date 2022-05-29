@@ -39,7 +39,7 @@ async function run() {
         await client.connect();
         const productCollection = client.db("pcBuilder").collection("product");
         const userCollection = client.db("pcBuilder").collection("user");
-        // const orderCollection = client.db("pcBuilder").collection("order");
+        const orderCollection = client.db("pcBuilder").collection("order");
 
         //FETCH ALL PRODUCT
 
@@ -57,10 +57,55 @@ async function run() {
             res.send(users);
         });
 
+        /////
+
+        app.get("/admin/:email", async (req, res) => {
+            const email = req.params.email;
+            const user = await userCollection.findOne({ email: email });
+            const isAdmin = user.role === "admin";
+            res.send({ admin: isAdmin });
+        });
+
         /////////ADMIN
 
         app.put("/user/admin/:email", async (req, res) => {
             const email = req.params.email;
+            // const requester = req.decoded.email;
+            const requesterAccount = await userCollection.findOne({
+                email: email,
+            });
+            //P. Hero
+
+            // if (requesterAccount.role === "admin") {
+            //     const filter = { email: email };
+            //     const updateDoc = {
+            //         $set: { role: "admin" },
+            //     };
+            //     const result = await userCollection.updateOne(
+            //         filter,
+            //         updateDoc
+            //     );
+            //     res.send(result);
+            // } else {
+            //     res.status(403).send({ message: "forbidden" });
+            // }
+
+            //My
+
+            // if (requesterAccount.role === "admin") {
+            //     const filter = { email: email };
+            //     const updateDoc = {
+            //         $set: { role: "admin" },
+            //     };
+            //     const result = await userCollection.updateOne(
+            //         filter,
+            //         updateDoc
+            //     );
+            //     res.send(result);
+            // } else {
+            //     res.status(403).send({ message: "forbidden" });
+            // }
+
             const filter = { email: email };
             const updateDoc = {
                 $set: { role: "admin" },
@@ -91,6 +136,51 @@ async function run() {
                 { expiresIn: "7d" }
             );
             res.send({ result, token });
+        });
+
+        // Product Order
+
+        // app.put("/order/:id", async (req, res) => {
+        //     const id = req.params.id;
+        //     const oldQuantity = req.body.quantity;
+        //     const filter = { _id: ObjectId(id) };
+        //     const product = await productCollection.findOne(filter);
+        //     const remainingQuantity =
+        //         parseInt(product.quantity) - parseInt(oldQuantity);
+        //     console.log(remainingQuantity);
+        //     const updateDoc = {
+        //         $set: {
+        //             quantity: remainingQuantity,
+        //         },
+        //     };
+        //     const result = await productCollection.updateOne(filter, updateDoc);
+        //     res.send(result);
+        // });
+
+        app.put("/order/:id", async (req, res) => {
+            const id = req.params.id;
+            const newQuantity = req.body.quantity;
+            console.log(newQuantity);
+            const filter = { _id: ObjectId(id) };
+            const product = await productCollection.findOne(filter);
+            const remainingQuantity =
+                parseInt(product.availableQuantity) - parseInt(newQuantity);
+            console.log(remainingQuantity);
+            const updateDoc = {
+                $set: {
+                    availableQuantity: remainingQuantity,
+                },
+            };
+            const result = await productCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        });
+
+        /////////
+
+        app.post("/order", async (req, res) => {
+            const order = req.body;
+            const result = await orderCollection.insertOne(order);
+            res.send(result);
         });
 
         //FETCH SINGLE PRODUCT

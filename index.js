@@ -74,37 +74,6 @@ async function run() {
             const requesterAccount = await userCollection.findOne({
                 email: email,
             });
-            //P. Hero
-
-            // if (requesterAccount.role === "admin") {
-            //     const filter = { email: email };
-            //     const updateDoc = {
-            //         $set: { role: "admin" },
-            //     };
-            //     const result = await userCollection.updateOne(
-            //         filter,
-            //         updateDoc
-            //     );
-            //     res.send(result);
-            // } else {
-            //     res.status(403).send({ message: "forbidden" });
-            // }
-
-            //My
-
-            // if (requesterAccount.role === "admin") {
-            //     const filter = { email: email };
-            //     const updateDoc = {
-            //         $set: { role: "admin" },
-            //     };
-            //     const result = await userCollection.updateOne(
-            //         filter,
-            //         updateDoc
-            //     );
-            //     res.send(result);
-            // } else {
-            //     res.status(403).send({ message: "forbidden" });
-            // }
 
             const filter = { email: email };
             const updateDoc = {
@@ -139,23 +108,6 @@ async function run() {
         });
 
         // Product Order
-
-        // app.put("/order/:id", async (req, res) => {
-        //     const id = req.params.id;
-        //     const oldQuantity = req.body.quantity;
-        //     const filter = { _id: ObjectId(id) };
-        //     const product = await productCollection.findOne(filter);
-        //     const remainingQuantity =
-        //         parseInt(product.quantity) - parseInt(oldQuantity);
-        //     console.log(remainingQuantity);
-        //     const updateDoc = {
-        //         $set: {
-        //             quantity: remainingQuantity,
-        //         },
-        //     };
-        //     const result = await productCollection.updateOne(filter, updateDoc);
-        //     res.send(result);
-        // });
 
         app.put("/order/:id", async (req, res) => {
             const id = req.params.id;
@@ -211,12 +163,6 @@ async function run() {
         });
 
         //ORDER DATA
-
-        // app.post("/order", async (req, res) => {
-        //     const order = req.body;
-        //     const result = await orderCollection.insertOne(order);
-        //     res.send(result);
-        // });
     } finally {
     }
 }
